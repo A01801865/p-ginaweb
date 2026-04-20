@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Number Land | Panel Unificado</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Cambiar el color de toda la página desde un solo lugar */
+        :root {
+            --primary: #4361ee;
+            --bg: #F4F7FE;
+            --text-main: #2b3674;
+            --text-grey: #a3aed0;
+            --white: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0; background-color: var(--bg); color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* Estilo de la pantalla de login */
+        .auth-full-page {
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #e0e7ff 0%, #ffffff 100%);
+        }
+        .auth-container {
+            background: white; width: 900px; height: 550px; display: flex;
+            border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.05); overflow: hidden;
+        }
+        /* Lado azul con el logo */
+        .auth-visual {
+            flex: 1; background: linear-gradient(135deg, #4361ee 0%, #7209b7 100%);
+            color: white; display: flex; align-items: center; padding: 40px; text-align: center;
+        }
+
+        /* Tamaño del logo grande en el inicio */
+        .brand-logo-large {
+            width: 180px; height: auto; margin-bottom: 20px;
+            object-fit: contain; image-rendering: pixelated; 
+        }
+
+        /* Estilos de los formularios */
+        .auth-forms { flex: 1; padding: 40px; display: flex; flex-direction: column; }
+        .auth-nav { display: flex; gap: 10px; margin-bottom: 30px; background: #f4f7fe; padding: 5px; border-radius: 12px; }
+        .auth-nav-btn { flex: 1; border: none; background: none; padding: 10px; cursor: pointer; border-radius: 10px; font-weight: 600; color: var(--text-grey); }
+        .auth-nav-btn.active { background: white; color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+        /* Esconder secciones que no estamos viendo */
+        .auth-form-pane { display: none; }
+        .auth-form-pane.active { display: block; animation: fadeIn 0.4s; }
+
+        /* inputs */
+        .input-group { position: relative; margin-bottom: 15px; }
+        .input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-grey); }
+        .input-group input { width: 85%; padding: 15px 15px 15px 45px; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc; font-size: 1rem; }
+
+        .btn-auth-main {
+            background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px;
+            width: 100%; font-weight: 700; cursor: pointer; margin-top: 10px; transition: 0.3s;
+        }
+
+        /* Estilos del dashboard */
+        .dashboard-layout { display: flex; height: 100vh; }
+        .sidebar { width: 280px; background: white; padding: 30px 20px; display: flex; flex-direction: column; box-shadow: 4px 0 20px rgba(0,0,0,0.02); }
+        
+        .brand-section { 
+            display: flex; flex-direction: column; align-items: center; 
+            gap: 10px; font-size: 1.1rem; font-weight: 800; margin-bottom: 40px; text-align: center;
+        }
+        
+        /* Tamaño del logo pequeño en el menú lateral */
+        .brand-logo-small {
+            width: 80px; height: auto; object-fit: contain; image-rendering: pixelated;
+        }
+
+        /* Botones del menú lateral */
+        .nav-btn-modern {
+            display: flex; align-items: center; gap: 15px; width: 100%; padding: 15px 20px;
+            margin-bottom: 10px; border: none; background: transparent; color: var(--text-grey);
+            font-weight: 600; cursor: pointer; border-radius: 15px; transition: 0.3s; font-family: inherit;
+        }
+        .nav-btn-modern.active { background: var(--primary); color: white; box-shadow: 0 10px 20px rgba(67, 97, 238, 0.2); }
+        .btn-exit { margin-top: auto; background: #fff1f0; color: #ff4d4f; border: none; padding: 15px; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; justify-content: center; gap: 10px; }
+
+        /* Área de contenido a la derecha */
+        .content-area { flex: 1; padding: 40px; overflow-y: auto; }
+        .main-header { display: flex; justify-content: space-between; margin-bottom: 30px; align-items: center; }
+        .user-pill { background: white; padding: 8px 15px; border-radius: 50px; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .user-avatar { width: 30px; height: 30px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; }
+
+        /* Control de las pestañas del dashboard */
+        .pane { display: none; }
+        .pane.active { display: block; animation: fadeIn 0.4s; }
+
+        /* Cuadrícula para las tarjetas donde están los números  */
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .mini-card { background: white; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.02); }
+        .mini-card h3 { font-size: 2rem; margin: 0; color: var(--primary); }
+        .white-card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.02); }
+
+        /* Estilo moderno para la tabla de alumnos */
+        .modern-table { width: 100%; border-collapse: collapse; }
+        .modern-table th { text-align: left; padding: 15px; color: var(--text-grey); border-bottom: 1px solid #f1f5f9; }
+        .modern-table td { padding: 15px; border-bottom: 1px solid #f8fafc; }
+
+        /* Animación de "entrada" suave */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div id="auth-screen" class="auth-full-page">
+        <div class="auth-container">
+            <div class="auth-visual">
+                <div class="visual-content">
+                    <img src="supernumberlandlogo.png" alt="Logo Super Number Land" class="brand-logo-large">
+                    <h2>Super Number Land</h2>
+                    <p>Panel de gestión para colaboradores del progreso de los alumnos y análisis de estadísticas en tiempo real.</p>
+                </div>
+            </div>
+            <div class="auth-forms">
+                <div class="auth-nav">
+                    <button id="btn-tab-login" class="auth-nav-btn active" onclick="showAuthTab('login')">Iniciar Sesión</button>
+                    <button id="btn-tab-register" class="auth-nav-btn" onclick="showAuthTab('register')">Registrarse</button>
+                </div>
+                <div id="form-login" class="auth-form-pane active">
+                    <h3>¡Bienvenido!</h3>
+                    <div class="input-group"><i class="fas fa-envelope"></i><input type="email" placeholder="correo@ejemplo.com"></div>
+                    <div class="input-group"><i class="fas fa-lock"></i><input type="password" placeholder="Contraseña"></div>
+                    <button class="btn-auth-main" onclick="ejecutarAcceso()">Entrar al Panel <i class="fas fa-arrow-right"></i></button>
+                </div>
+                <div id="form-register" class="auth-form-pane">
+                    <h3>Crear Cuenta</h3>
+                    <div class="input-group"><i class="fas fa-user"></i><input type="text" placeholder="Nombre completo"></div>
+                    <div class="input-group"><i class="fas fa-envelope"></i><input type="email" placeholder="correo@ejemplo.com"></div>
+                    <div class="input-group"><i class="fas fa-lock"></i><input type="password" placeholder="Contraseña"></div>
+                    <button class="btn-auth-main" onclick="ejecutarAcceso()">Registrarme <i class="fas fa-user-plus"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-dashboard" class="dashboard-layout" style="display: none;">
+        <aside class="sidebar">
+            <div class="brand-section">
+                <img src="supernumberlandlogo.png" alt="Mini Logo" class="brand-logo-small">
+                <span>Super Number Land</span>
+            </div>
+            <nav>
+                <button id="btn-resumen" class="nav-btn-modern active" onclick="switchTab('resumen')"><i class="fas fa-th-large"></i> <span>Resumen</span></button>
+                <button id="btn-tablas" class="nav-btn-modern" onclick="switchTab('tablas')"><i class="fas fa-list-ul"></i> <span>Tablas</span></button>
+                <button id="btn-graficas" class="nav-btn-modern" onclick="switchTab('graficas')"><i class="fas fa-chart-pie"></i> <span>Gráficas</span></button>
+            </nav>
+            <button class="btn-exit" onclick="location.reload()"><i class="fas fa-door-open"></i> <span>Salir</span></button>
+        </aside>
+
+        <main class="content-area">
+            <header class="main-header">
+                <h2 id="page-title">Vista General</h2>
+                <div class="user-pill"><span>Usuario del colaborador</span><div class="user-avatar">UC</div></div>
+            </header>
+
+            <section id="pane-resumen" class="pane active">
+                <div class="stats-row">
+                    <div class="mini-card"><h3>125</h3><p>Alumnos</p></div>
+                    <div class="mini-card"><h3>76%</h3><p>Aciertos</p></div>
+                    <div class="mini-card"><h3>12m</h3><p>Tiempo</p></div>
+                </div>
+                <div class="white-card">
+                    <h3>Actividad Reciente</h3>
+                    <div id="activity-feed" style="max-height: 200px; overflow-y: auto;"></div>
+                </div>
+            </section>
+
+            <section id="pane-tablas" class="pane">
+                <div class="white-card">
+                    <table class="modern-table">
+                        <thead><tr><th>Alumno</th><th>Nivel</th><th>Aciertos</th><th>Monedas</th></tr></thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="pane-graficas" class="pane">
+                <div class="white-card">
+                    <div style="height: 300px;"><canvas id="mainChart"></canvas></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Función para cambiar entre la vista de Login y Registro
+        function showAuthTab(tab) {
+            // Quitamos la clase 'active' de todos los formularios y botones
+            document.querySelectorAll('.auth-form-pane').forEach(f => f.classList.remove('active'));
+            document.querySelectorAll('.auth-nav-btn').forEach(b => b.classList.remove('active'));
+            
+            // Ponemos 'active' al que seleccionamos para mostrarlo
+            document.getElementById('form-' + tab).classList.add('active');
+            document.getElementById('btn-tab-' + tab).classList.add('active');
+        }
+
+        // Función que se activa al dar clic en entrar (cambiar de pantalla)
+        function ejecutarAcceso() {
+            document.getElementById('auth-screen').style.display = 'none'; // Esconde login
+            document.getElementById('main-dashboard').style.display = 'flex'; // Muestra panel
+            iniciarApp(); // Carga los datos
+        }
+
+        // Función para cambiar entre Resumen, Tablas y Gráficas
+        function switchTab(tab) {
+            // Esconde todas las pestañas
+            document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-btn-modern').forEach(b => b.classList.remove('active'));
+            
+            // Muestra solo la elegida
+            document.getElementById('pane-' + tab).classList.add('active');
+            document.getElementById('btn-' + tab).classList.add('active');
+            
+            // Cambia el texto del título superior
+            const titulos = { resumen: 'Vista General', tablas: 'Listado de Alumnos', graficas: 'Estadísticas' };
+            document.getElementById('page-title').innerText = titulos[tab];
+        }
+
+        // Función que llena la información cuando entras al panel
+        function iniciarApp() {
+            // Datos de ejemplo para la tabla
+            const data = [
+                { n: "Alejandro", lvl: "5", res: "95%", m: 500 },
+                { n: "Mariana", lvl: "4", res: "88%", m: 320 },
+                { n: "Luis", lvl: "3", res: "70%", m: 150 }
+            ];
+            // Inserta los datos en el HTML de la tabla
+            document.getElementById('table-body').innerHTML = data.map(u => `
+                <tr><td><strong>${u.n}</strong></td><td>Nivel ${u.lvl}</td><td>${u.res}</td><td>💰 ${u.m}</td></tr>
+            `).join('');
+
+            // Configura la gráfica de líneas con Chart.js
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie'],
+                    datasets: [{ label: 'Aciertos', data: [60, 80, 75, 90, 85], borderColor: '#4361ee', fill: true, backgroundColor: 'rgba(67, 97, 238, 0.1)', tension: 0.4 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // Simulador de actividad: Agrega un mensaje nuevo cada 3 segundos (se investigó para poder saber como realizarlo)
+            setInterval(() => {
+                const nombres = ["Alejandro", "Mariana", "Luis"];
+                const n = nombres[Math.floor(Math.random() * nombres.length)];
+                const f = document.getElementById('activity-feed');
+                const i = document.createElement('div');
+                i.style = "padding: 8px; border-bottom: 1px solid #eee; font-size: 0.85rem;";
+                i.innerHTML = ` <strong>${n}</strong> terminó un nivel con ${Math.floor(Math.random()*4)+6}/10 aciertos.`;
+                f.prepend(i); // Lo pone al inicio de la lista
+                if(f.childNodes.length > 5) f.removeChild(f.lastChild); // Mantiene solo 5 mensajes
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
