@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Number Land | Página no encontrada</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #4361ee;
+            --bg: #F4F7FE;
+            --text-main: #2b3674;
+            --text-grey: #a3aed0;
+            --white: #FFFFFF;
+            --error: #ff4d4f;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #e0e7ff 0%, #ffffff 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Fondo decorativo */
+        .bg-circles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .bg-circles span {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.07;
+            background: var(--primary);
+            animation: float 8s ease-in-out infinite;
+        }
+        .bg-circles span:nth-child(1) { width: 400px; height: 400px; top: -100px; right: -100px; animation-delay: 0s; }
+        .bg-circles span:nth-child(2) { width: 250px; height: 250px; bottom: -60px; left: -60px; animation-delay: 2s; }
+        .bg-circles span:nth-child(3) { width: 150px; height: 150px; top: 50%; left: 10%; animation-delay: 4s; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Card principal */
+        .error-container {
+            position: relative;
+            z-index: 1;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.07);
+            padding: 60px 50px;
+            text-align: center;
+            max-width: 520px;
+            width: 90%;
+            animation: slideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Logo */
+        .brand-logo {
+            width: 80px;
+            margin-bottom: 20px;
+        }
+
+        /* Número 404 grande */
+        .error-number {
+            font-size: 7rem;
+            font-weight: 800;
+            line-height: 1;
+            background: linear-gradient(135deg, #4361ee 0%, #7209b7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            animation: pulse 3s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Ícono */
+        .error-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            display: block;
+            animation: wiggle 2s ease-in-out infinite;
+        }
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-8deg); }
+            75% { transform: rotate(8deg); }
+        }
+
+        .error-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        .error-desc {
+            color: var(--text-grey);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 35px;
+        }
+
+        /* Botones */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 20px rgba(67,97,238,0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(67,97,238,0.4);
+        }
+
+        .btn-secondary {
+            background: #f4f7fe;
+            color: var(--text-main);
+            border: none;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s, background 0.2s;
+        }
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            background: #e8edfd;
+        }
+
+        /* Divider */
+        .divider {
+            border: none;
+            border-top: 1px solid #f0f2f5;
+            margin: 35px 0 25px;
+        }
+
+        .brand-footer {
+            color: var(--text-grey);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .brand-footer span {
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-circles">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="error-container">
+
+        <!-- Logo -->
+        <img src="supernumberlandlogo.png" alt="Logo Super Number Land" class="brand-logo"
+             onerror="this.style.display='none'">
+
+        <!-- Número de error -->
+        <div class="error-number">404</div>
+
+        <!-- Ícono animado -->
+        <i class="fas fa-map-signs error-icon" style="color: var(--text-grey);"></i>
+
+        <h1 class="error-title">¡Ups! Página no encontrada</h1>
+        <p class="error-desc">
+            La página que buscas no existe o fue movida.<br>
+            Puede que la dirección tenga un error, pero no te preocupes —<br>
+            ¡el camino de regreso está a un clic!
+        </p>
+
+        <div class="btn-group">
+            <a href="/index.html" class="btn-primary">
+                <i class="fas fa-home"></i> Ir al inicio
+            </a>
+            <a href="javascript:history.back()" class="btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver atrás
+            </a>
+        </div>
+
+        <hr class="divider">
+
+        <p class="brand-footer">
+            <span>Super Number Land</span> · Panel Educativo
+        </p>
+
+    </div>
+
+</body>
+</html>

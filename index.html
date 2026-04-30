@@ -3,274 +3,926 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Super Number Land | Panel Unificado</title>
-    
+    <title>Super Number Land | Panel Administrativo</title>
+
+    <!-- Íconos de Font Awesome y fuente Plus Jakarta Sans desde CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Librería Chart.js para renderizar gráficas -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
+        /* ── Variables globales de color, tamaño y tipografía ── */
         :root {
             --primary: #4361ee;
+            --primary-light: #eef0fd;
+            --purple: #7209b7;
             --bg: #F4F7FE;
-            --text-main: #2b3674;
-            --text-grey: #a3aed0;
-            --white: #FFFFFF;
+            --text: #2b3674;
+            --grey: #a3aed0;
+            --white: #fff;
+            --border: #f0f2f5;
+            --success: #05cd99;
+            --warning: #ffb547;
             --error: #ff4d4f;
+            --sidebar-w: 260px;
         }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            margin: 0; background-color: var(--bg); color: var(--text-main);
+            background: var(--bg);
+            color: var(--text);
             overflow-x: hidden;
         }
 
-        /* --- Pantalla de Autenticación --- */
-        .auth-full-page { height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #e0e7ff 0%, #ffffff 100%); }
-        .auth-container { background: white; width: 900px; height: 550px; display: flex; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.05); overflow: hidden; }
-        .auth-visual { flex: 1; background: linear-gradient(135deg, #4361ee 0%, #7209b7 100%); color: white; display: flex; align-items: center; padding: 40px; text-align: center; }
-        .brand-logo-large { width: 150px; height: auto; margin-bottom: 20px; object-fit: contain; }
-        .auth-forms { flex: 1; padding: 40px; display: flex; flex-direction: column; }
-        .auth-nav { display: flex; gap: 10px; margin-bottom: 30px; background: #f4f7fe; padding: 5px; border-radius: 12px; }
-        .auth-nav-btn { flex: 1; border: none; background: none; padding: 10px; cursor: pointer; border-radius: 10px; font-weight: 600; color: var(--text-grey); }
-        .auth-nav-btn.active { background: white; color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .auth-form-pane { display: none; }
-        .auth-form-pane.active { display: block; animation: fadeIn 0.4s; }
-
-        /* --- Dashboard Layout --- */
-        .dashboard-layout { display: none; height: 100vh; }
-        .sidebar { width: 260px; background: white; padding: 30px 20px; display: flex; flex-direction: column; border-right: 1px solid #f0f2f5; }
-        .brand-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 40px; text-align: center; font-weight: 800; }
-        .brand-logo-small { width: 60px; margin-bottom: 10px; }
-        
-        .nav-btn-modern {
-            display: flex; align-items: center; gap: 15px; width: 100%; padding: 12px 15px;
-            margin-bottom: 8px; border: none; background: transparent; color: var(--text-grey);
-            font-weight: 600; cursor: pointer; border-radius: 12px; transition: 0.3s;
+        /* PANTALLA DE AUTENTICACIÓN (Ocupa toda la pantalla y centra la tarjeta de login/registro) */
+        .auth-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #e0e7ff 0%, #fff 100%);
+            padding: 20px;
         }
-        .nav-btn-modern.active { background: var(--primary); color: white; }
-        
-        .content-area { flex: 1; padding: 30px; overflow-y: auto; }
-        .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        
-        /* --- Componentes --- */
-        .white-card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin-bottom: 20px; }
-        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
-        .mini-card { background: white; padding: 20px; border-radius: 15px; text-align: center; }
-        .mini-card h3 { font-size: 1.8rem; margin: 0; color: var(--primary); }
-        
-        .input-group { position: relative; margin-bottom: 15px; }
-        .input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-grey); }
-        .input-group input { width: 85%; padding: 12px 12px 12px 40px; border: 1px solid #e2e8f0; border-radius: 10px; font-family: inherit; }
-        
-        .btn-auth-main { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: 700; cursor: pointer; }
-        .btn-exit { margin-top: auto; background: #fff1f0; color: var(--error); border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; }
 
-        .modern-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .modern-table th { text-align: left; padding: 12px; color: var(--text-grey); border-bottom: 2px solid #f4f7fe; }
-        .modern-table td { padding: 12px; border-bottom: 1px solid #f4f7fe; }
+        /* Tarjeta dividida: lado decorativo (izquierda) + formulario (derecha) */
+        .auth-card {
+            background: white;
+            width: 100%;
+            max-width: 880px;
+            display: flex;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 24px 60px rgba(67,97,238,0.12);
+        }
 
-        .pane { display: none; }
-        .pane.active { display: block; animation: fadeIn 0.4s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Panel izquierdo con degradado y círculos decorativos (::before / ::after) */
+        .auth-side {
+            flex: 1;
+            background: linear-gradient(145deg, #4361ee 0%, #7209b7 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 50px 35px;
+            position: relative;
+            overflow: hidden;
+        }
+        .auth-side::before {
+            content: '';
+            position: absolute;
+            width: 300px; height: 300px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+            top: -80px; right: -80px;
+        }
+        .auth-side::after {
+            content: '';
+            position: absolute;
+            width: 200px; height: 200px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+            bottom: -50px; left: -50px;
+        }
+
+        .auth-side-content { position: relative; z-index: 1; }
+        .auth-side img { width: 110px; margin-bottom: 20px; }
+        .auth-side h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
+        .auth-side p { font-size: 0.9rem; opacity: 0.85; line-height: 1.6; }
+
+        /* Panel derecho que contiene las pestañas y los campos del formulario */
+        .auth-form {
+            flex: 1;
+            padding: 45px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Barra de navegación entre "Ingresar" y "Registrar" */
+        .auth-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 28px;
+            background: var(--bg);
+            padding: 5px;
+            border-radius: 12px;
+        }
+        .auth-nav-btn {
+            flex: 1; border: none; background: none;
+            padding: 10px; cursor: pointer; border-radius: 9px;
+            font-weight: 700; font-size: 0.9rem; font-family: inherit;
+            color: var(--grey); transition: 0.2s;
+        }
+        .auth-nav-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        /* Paneles de formulario: solo el que tenga .active es visible */
+        .form-pane { display: none; }
+        .form-pane.active { display: block; animation: fadeUp 0.35s ease; }
+
+        .form-pane h3 { font-size: 1.2rem; font-weight: 800; margin-bottom: 20px; color: var(--text); }
+
+        /* Campo de texto con ícono a la izquierda */
+        .input-group { position: relative; margin-bottom: 14px; }
+        .input-group i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--grey); font-size: 0.9rem; }
+        .input-group input {
+            width: 100%; padding: 12px 12px 12px 38px;
+            border: 1.5px solid var(--border); border-radius: 10px;
+            font-size: 0.9rem; font-family: inherit; color: var(--text);
+            transition: border 0.2s; outline: none;
+        }
+        .input-group input:focus { border-color: var(--primary); }
+
+        /* Botón principal con degradado */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            color: white; border: none; padding: 13px;
+            border-radius: 10px; font-weight: 700; cursor: pointer;
+            width: 100%; font-family: inherit; font-size: 0.95rem;
+            transition: 0.2s; box-shadow: 0 6px 20px rgba(67,97,238,0.3);
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(67,97,238,0.4); }
+
+        /* DASHBOARD PRINCIPAL (Oculto hasta que el usuario inicia sesión exitosamente) */
+        .dashboard { display: none; height: 100vh; overflow: hidden; }
+
+        /* Barra lateral fija con navegación entre secciones */
+        .sidebar {
+            width: var(--sidebar-w);
+            min-width: var(--sidebar-w);
+            background: white;
+            border-right: 1px solid var(--border);
+            padding: 28px 18px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s;
+            z-index: 100;
+        }
+
+        /* Logo y nombre del panel en la parte superior del sidebar */
+        .sidebar-brand {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 35px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--border);
+        }
+        .sidebar-brand img { width: 55px; margin-bottom: 10px; }
+        .sidebar-brand span { font-weight: 800; font-size: 0.95rem; color: var(--text); }
+        .sidebar-brand small { font-size: 0.75rem; color: var(--grey); }
+
+        /* Etiqueta de sección dentro del sidebar */
+        .nav-section { font-size: 0.7rem; font-weight: 700; color: var(--grey); text-transform: uppercase; letter-spacing: 0.08em; margin: 18px 8px 8px; }
+
+        /* Botón de navegación del sidebar; .active resalta la sección actual */
+        .nav-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 11px 14px; margin-bottom: 4px;
+            border: none; background: none; color: var(--grey);
+            font-weight: 600; font-size: 0.88rem; cursor: pointer;
+            width: 100%; border-radius: 10px; text-align: left;
+            font-family: inherit; transition: 0.2s;
+        }
+        .nav-link:hover { background: var(--primary-light); color: var(--primary); }
+        .nav-link.active { background: var(--primary); color: white; }
+        .nav-link i { width: 18px; text-align: center; }
+
+        /* Botón de cierre de sesión al fondo del sidebar */
+        .btn-logout {
+            margin-top: auto;
+            background: #fff1f0; color: var(--error);
+            border: none; padding: 11px; border-radius: 10px;
+            cursor: pointer; font-weight: 700; font-family: inherit;
+            font-size: 0.88rem; width: 100%; transition: 0.2s;
+        }
+        .btn-logout:hover { background: #ffe0e0; }
+
+        /* Área de contenido principal que ocupa el espacio restante */
+        .main-content {
+            flex: 1; overflow-y: auto;
+            display: flex; flex-direction: column;
+        }
+
+        /* Barra superior fija con título de página y datos del usuario */
+        .topbar {
+            background: white;
+            padding: 18px 28px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky; top: 0; z-index: 50;
+        }
+        .topbar h2 { font-size: 1.25rem; font-weight: 800; }
+
+        /* Chip con nombre e inicial del usuario logueado */
+        .user-badge {
+            display: flex; align-items: center; gap: 10px;
+            background: var(--primary-light);
+            padding: 8px 14px; border-radius: 50px;
+        }
+        .user-badge span { font-weight: 700; font-size: 0.85rem; color: var(--primary); }
+        .user-avatar {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 0.8rem; font-weight: 700;
+        }
+
+        .content-body { padding: 24px 28px; flex: 1; }
+
+        /* Pestañas de contenido: solo la que tenga .active se muestra */
+        .tab-content { display: none; animation: fadeUp 0.35s ease; }
+        .tab-content.active { display: block; }
+
+        /* Grid de 4 tarjetas de estadísticas resumidas */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white;
+            padding: 22px 20px;
+            border-radius: 18px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* Ícono de cada stat con colores temáticos */
+        .stat-icon {
+            width: 50px; height: 50px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; flex-shrink: 0;
+        }
+        .stat-icon.blue { background: #eef0fd; color: var(--primary); }
+        .stat-icon.green { background: #e6faf5; color: var(--success); }
+        .stat-icon.orange { background: #fff5e6; color: var(--warning); }
+        .stat-icon.purple { background: #f3e8fb; color: var(--purple); }
+
+        .stat-info h3 { font-size: 1.6rem; font-weight: 800; color: var(--text); line-height: 1; }
+        .stat-info p { font-size: 0.78rem; color: var(--grey); margin-top: 4px; font-weight: 600; }
+
+        /* Tarjeta genérica para secciones de contenido */
+        .card {
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+        .card-header {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 18px;
+        }
+        .card-title { font-size: 1rem; font-weight: 800; color: var(--text); }
+        .card-badge {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 0.75rem; font-weight: 700;
+            padding: 4px 10px; border-radius: 20px;
+        }
+
+        /* Contenedor para que las tablas tengan scroll horizontal en móvil */
+        .table-wrap { overflow-x: auto; }
+
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            text-align: left; padding: 10px 12px;
+            font-size: 0.75rem; font-weight: 700;
+            color: var(--grey); text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--bg);
+            white-space: nowrap;
+        }
+        tbody td {
+            padding: 12px; font-size: 0.86rem;
+            border-bottom: 1px solid var(--bg);
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover td { background: #fafbff; }
+
+        /* Badges de género y rendimiento con colores semánticos */
+        .badge {
+            display: inline-flex; align-items: center;
+            padding: 3px 10px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 700;
+        }
+        .badge-m { background: #e8f4fd; color: #1a73e8; }
+        .badge-f { background: #fde8f4; color: #c71585; }
+        .badge-pct-high { background: #e6faf5; color: var(--success); }
+        .badge-pct-mid { background: #fff5e6; color: var(--warning); }
+        .badge-pct-low { background: #fff1f0; color: var(--error); }
+
+        .stars { color: #ffb547; font-size: 0.85rem; }
+
+        /* Grid de dos columnas para mostrar gráficas lado a lado */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .chart-wrap { position: relative; height: 260px; }
+
+        /* Barra superior móvil (hamburguesa + título) – oculta en escritorio */
+        .mobile-topbar {
+            display: none;
+            background: white;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+            justify-content: space-between;
+            position: sticky; top: 0; z-index: 200;
+        }
+        .hamburger {
+            background: none; border: none;
+            font-size: 1.3rem; color: var(--text);
+            cursor: pointer; padding: 4px;
+        }
+
+        /* Capa oscura que aparece detrás del sidebar cuando está abierto en móvil */
+        .sidebar-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.35); z-index: 99;
+        }
+        .sidebar-overlay.on { display: block; }
+
+        /* Barra de navegación inferior para móvil (reemplaza al sidebar) */
+        .bottom-nav {
+            display: none;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: white; border-top: 1px solid var(--border);
+            padding: 8px 0; z-index: 150;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+        }
+        .bottom-nav-items { display: flex; justify-content: space-around; }
+        .bottom-nav-btn {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 3px; background: none; border: none;
+            color: var(--grey); font-family: inherit;
+            font-size: 0.65rem; font-weight: 700;
+            cursor: pointer; padding: 6px 10px; border-radius: 10px;
+        }
+        .bottom-nav-btn i { font-size: 1.1rem; }
+        .bottom-nav-btn.active { color: var(--primary); }
+
+        /* Animaciones reutilizables */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Responsive: tablet (≤1100px) ── */
+        @media (max-width: 1100px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── Responsive: móvil (≤768px) ── */
+        @media (max-width: 768px) {
+            /* El sidebar pasa a ser un panel deslizable desde la izquierda */
+            .auth-card { flex-direction: column; border-radius: 20px; }
+            .auth-side { padding: 30px 20px; }
+            .auth-form { padding: 25px 20px; }
+            .dashboard { flex-direction: column; height: auto; min-height: 100vh; overflow: visible; }
+            .mobile-topbar { display: flex; }
+            .topbar { display: none; }
+            .sidebar {
+                position: fixed; top: 0; left: 0; height: 100vh;
+                transform: translateX(-100%);
+                box-shadow: 4px 0 24px rgba(0,0,0,0.1);
+            }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { overflow-y: visible; }
+            .content-body { padding: 16px 14px 100px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+            .stat-card { padding: 16px 14px; }
+            .stat-icon { width: 42px; height: 42px; font-size: 1.1rem; }
+            .stat-info h3 { font-size: 1.3rem; }
+            .bottom-nav { display: block; }
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── Responsive: teléfonos muy pequeños (≤400px) ── */
+        @media (max-width: 400px) {
+            .stats-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen" class="auth-full-page">
-        <div class="auth-container">
-            <div class="auth-visual">
-                <div class="visual-content">
-                    <img src="supernumberlandlogo.png" alt="Logo" class="brand-logo-large">
-                    <h2>Super Number Land</h2>
-                    <p>Acceso exclusivo para colaboradores y analistas del progreso educativo.</p>
-                </div>
-            </div>
-            <div class="auth-forms">
-                <div class="auth-nav">
-                    <button id="btn-tab-login" class="auth-nav-btn active" onclick="showAuthTab('login')">Entrar</button>
-                    <button id="btn-tab-register" class="auth-nav-btn" onclick="showAuthTab('register')">Nuevo Registro</button>
-                </div>
-                
-                <div id="form-login" class="auth-form-pane active">
-                    <h3>Bienvenido de nuevo</h3>
-                    <div class="input-group"><i class="fas fa-user"></i><input type="text" id="login-user" placeholder="Nombre de usuario"></div>
-                    <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="login-pass" placeholder="Contraseña"></div>
-                    <button class="btn-auth-main" onclick="procesarAuth('login')">Acceder</button>
-                </div>
+<!-- PANTALLA DE AUTENTICACIÓN Visible al cargar; se oculta tras un login exitoso -->
+<div id="auth-screen" class="auth-screen">
+    <div class="auth-card">
 
-                <div id="form-register" class="auth-form-pane">
-                    <h3>Crear Colaborador</h3>
-                    <div class="input-group"><i class="fas fa-user"></i><input type="text" id="reg-user" placeholder="Usuario"></div>
-                    <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="reg-pass" placeholder="Contraseña"></div>
-                    <button class="btn-auth-main" onclick="procesarAuth('register')">Registrar Colaborador</button>
-                </div>
+        <!-- Panel decorativo izquierdo -->
+        <div class="auth-side">
+            <div class="auth-side-content">
+                <img src="supernumberlandlogo.png" alt="Logo" onerror="this.style.display='none'">
+                <h2>Super Number Land</h2>
+                <p>Panel administrativo para colaboradores y analistas del progreso educativo.</p>
+            </div>
+        </div>
+
+        <!-- Formularios: pestañas "Ingresar" y "Registrar" -->
+        <div class="auth-form">
+            <div class="auth-nav">
+                <button id="tab-l" class="auth-nav-btn active" onclick="switchAuth('login')">Ingresar</button>
+                <button id="tab-r" class="auth-nav-btn" onclick="switchAuth('reg')">Registrar</button>
+            </div>
+
+            <!-- Formulario de inicio de sesión -->
+            <div id="pane-login" class="form-pane active">
+                <h3>Bienvenido de nuevo 👋</h3>
+                <div class="input-group"><i class="fas fa-user"></i><input type="text" id="l-user" placeholder="Usuario"></div>
+                <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="l-pass" placeholder="Contraseña"></div>
+                <button class="btn-primary" id="btn-login" onclick="login()">Acceder</button>
+            </div>
+
+            <!-- Formulario de registro de nueva cuenta -->
+            <div id="pane-reg" class="form-pane">
+                <h3>Crear cuenta</h3>
+                <div class="input-group"><i class="fas fa-id-card"></i><input type="text" id="r-name" placeholder="Nombre Completo"></div>
+                <div class="input-group"><i class="fas fa-user"></i><input type="text" id="r-user" placeholder="Nuevo Usuario"></div>
+                <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="r-pass" placeholder="Contraseña"></div>
+                <button class="btn-primary" id="btn-reg" onclick="registrar()">Crear Cuenta</button>
             </div>
         </div>
     </div>
+</div>
 
-    <div id="main-dashboard" class="dashboard-layout">
-        <aside class="sidebar">
-            <div class="brand-section">
-                <img src="supernumberlandlogo.png" alt="Logo" class="brand-logo-small">
-                <span>Super Number Land</span>
-            </div>
-            <nav>
-                <button id="btn-resumen" class="nav-btn-modern active" onclick="switchTab('resumen')"><i class="fas fa-home"></i> Resumen</button>
-                <button id="btn-alumnos" class="nav-btn-modern" onclick="switchTab('alumnos')"><i class="fas fa-user-graduate"></i> Alumnos</button>
-                <button id="btn-tablas" class="nav-btn-modern" onclick="switchTab('tablas')"><i class="fas fa-table"></i> Tablas</button>
-                <button id="btn-graficas" class="nav-btn-modern" onclick="switchTab('graficas')"><i class="fas fa-chart-line"></i> Gráficas</button>
-            </nav>
-            <button class="btn-exit" onclick="location.reload()"><i class="fas fa-sign-out-alt"></i> Salir</button>
-        </aside>
+<!-- DASHBOARD (Se muestra (display:flex) después del login exitoso) -->
+<div id="dashboard" class="dashboard">
 
-        <main class="content-area">
-            <header class="main-header">
-                <h2 id="page-title">Vista General</h2>
-                <div style="font-weight: 600;"><span id="user-logged">Usuario</span> <i class="fas fa-circle-user"></i></div>
-            </header>
+    <!-- Capa de oscurecimiento para cerrar el sidebar en móvil -->
+    <div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
 
-            <section id="pane-resumen" class="pane active">
-                <div class="stats-row">
-                    <div class="mini-card"><h3 id="stat-count">0</h3><p>Alumnos Registrados</p></div>
-                    <div class="mini-card"><h3>84%</h3><p>Rendimiento Global</p></div>
-                    <div class="mini-card"><h3>Hoy</h3><p>Sincronización</p></div>
-                </div>
-                <div class="white-card">
-                    <h3>Actividad Reciente</h3>
-                    <div id="activity-feed"></div>
-                </div>
-            </section>
-
-            <section id="pane-alumnos" class="pane">
-                <div class="white-card">
-                    <h3>Directorio Detallado de Alumnos</h3>
-                    <table class="modern-table">
-                        <thead>
-                            <tr>
-                                <th>Nombre Completo</th>
-                                <th>Edad</th>
-                                <th>Género</th>
-                                <th>Actividad</th>
-                                <th>Alcaldía</th>
-                                <th>Última Sesión</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-alumnos-body"></tbody>
-                    </table>
-                </div>
-            </section>
-
-            <section id="pane-tablas" class="pane">
-                <div class="white-card">
-                    <h3>Tabla de Puntajes</h3>
-                    <table class="modern-table">
-                        <thead><tr><th>Alumno</th><th>Misión</th><th>Aciertos</th><th>Monedas</th></tr></thead>
-                        <tbody id="table-scores-body"></tbody>
-                    </table>
-                </div>
-            </section>
-
-            <section id="pane-graficas" class="pane">
-                <div class="white-card">
-                    <div style="height: 350px;"><canvas id="chartProgreso"></canvas></div>
-                </div>
-            </section>
-        </main>
+    <!-- Barra superior móvil (hamburguesa) -->
+    <div class="mobile-topbar">
+        <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <span style="font-weight:800; font-size:0.95rem;">Super Number Land</span>
+        <div class="user-avatar" id="mob-avatar">A</div>
     </div>
 
-    <script>
-        const API_URL = ""; 
+    <!-- ── Sidebar con links de navegación ── -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <img src="supernumberlandlogo.png" alt="Logo" onerror="this.style.display='none'">
+            <span>Super Number Land</span>
+            <small>Panel Administrativo</small>
+        </div>
+        <div class="nav-section">Principal</div>
+        <button class="nav-link active" id="btn-resumen" onclick="showTab('resumen', 'Resumen General')">
+            <i class="fas fa-home"></i> Resumen
+        </button>
+        <div class="nav-section">Datos</div>
+        <button class="nav-link" id="btn-alumnos" onclick="showTab('alumnos', 'Directorio de Alumnos')">
+            <i class="fas fa-user-graduate"></i> Alumnos
+        </button>
+        <button class="nav-link" id="btn-rendimiento" onclick="showTab('rendimiento', 'Rendimiento Académico')">
+            <i class="fas fa-chart-bar"></i> Rendimiento
+        </button>
+        <button class="nav-link" id="btn-graficas" onclick="showTab('graficas', 'Gráficas y Análisis')">
+            <i class="fas fa-chart-line"></i> Gráficas
+        </button>
+        <!-- Recargar la página equivale a cerrar sesión (limpia localStorage) -->
+        <button class="btn-logout" onclick="location.reload()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
+    </aside>
 
-        async function procesarAuth(tipo) {
-            const user = (tipo === 'login') ? document.getElementById('login-user').value : document.getElementById('reg-user').value;
-            const pass = (tipo === 'login') ? document.getElementById('login-pass').value : document.getElementById('reg-pass').value;
+    <!-- ── Área de contenido principal ── -->
+    <main class="main-content">
+        <!-- Topbar de escritorio con título dinámico y badge del usuario -->
+        <div class="topbar">
+            <h2 id="page-title">Resumen General</h2>
+            <div class="user-badge">
+                <span id="user-tag">Usuario</span>
+                <div class="user-avatar" id="desk-avatar">A</div>
+            </div>
+        </div>
 
-            if(!user || !pass) return alert("⚠️ Completa los campos");
+        <div class="content-body">
 
-            // MODO PRUEBA
-            if (tipo === 'login') {
-                if (user === "admin") {
-                    if (pass === "12345") {
-                        localStorage.setItem('session_user', "Admin Staff");
-                        entrarAlPanel();
-                        return;
-                    } else { alert("❌ Contraseña incorrecta."); return; }
-                } else { alert("❓ El usuario '" + user + "' no existe."); return; }
+            <!-- ── Tab: Resumen (Muestra 4 stats y 2 gráficas de vista rápida) -->
+            <div id="tab-resumen" class="tab-content active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+                        <div class="stat-info"><h3 id="s-alumnos">—</h3><p>Alumnos Registrados</p></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange"><i class="fas fa-star"></i></div>
+                        <div class="stat-info"><h3 id="s-estrellas">—</h3><p>Promedio de Estrellas</p></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                        <div class="stat-info"><h3 id="s-niveles">—</h3><p>Niveles Completados</p></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon purple"><i class="fas fa-trophy"></i></div>
+                        <div class="stat-info"><h3 id="s-perfectos">—</h3><p>Niveles Perfectos ⭐⭐⭐</p></div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Top 5 — Estrellas</span>
+                            <span class="card-badge">Ranking</span>
+                        </div>
+                        <div class="chart-wrap"><canvas id="chart-estrellas"></canvas></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Niveles Completados por Tema</span>
+                            <span class="card-badge">Temas</span>
+                        </div>
+                        <div class="chart-wrap"><canvas id="chart-niveles"></canvas></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Tab: Alumnos ── (Tabla con información general de cada alumno) -->
+            <div id="tab-alumnos" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Directorio Completo</span>
+                        <span class="card-badge" id="badge-alumnos">0</span>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr>
+                                <th>Nombre Completo</th><th>Usuario</th><th>Edad</th>
+                                <th>Género</th><th>Alcaldía</th><th>Actividad</th>
+                                <th>Monedas</th><th>Última Sesión</th>
+                            </tr></thead>
+                            <tbody id="tabla-alumnos"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Tab: Rendimiento ── (Tabla con niveles completados y estrellas por materia) -->
+            <div id="tab-rendimiento" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Progreso Académico por Alumno</span>
+                        <span class="card-badge" id="badge-rend">0</span>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr>
+                                <th>Alumno</th>
+                                <th>Usuario</th>
+                                <th>➕ Suma</th>
+                                <th>➖ Resta</th>
+                                <th>✖️ Multi</th>
+                                <th>➗ División</th>
+                                <th>Total</th>
+                                <th>⭐ Promedio</th>
+                                <th>Perfectos</th>
+                            </tr></thead>
+                            <tbody id="tabla-rendimiento"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Tab: Gráficas ── (Cuatro gráficas detalladas de análisis) -->
+            <div id="tab-graficas" class="tab-content">
+                <div class="charts-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Distribución por Género</span>
+                        </div>
+                        <div class="chart-wrap"><canvas id="chart-genero"></canvas></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Monedas por Alumno</span>
+                        </div>
+                        <div class="chart-wrap"><canvas id="chart-monedas2"></canvas></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Estrellas Promedio por Alumno (Top 10)</span>
+                    </div>
+                    <div class="chart-wrap" style="height:300px;"><canvas id="chart-estrellas2"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Niveles Completados por Tema</span>
+                    </div>
+                    <div class="chart-wrap" style="height:300px;"><canvas id="chart-temas"></canvas></div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Barra de navegación inferior (solo móvil) -->
+    <nav class="bottom-nav">
+        <div class="bottom-nav-items">
+            <button class="bottom-nav-btn active" id="mob-resumen" onclick="showTab('resumen','Resumen General')">
+                <i class="fas fa-home"></i> Inicio
+            </button>
+            <button class="bottom-nav-btn" id="mob-alumnos" onclick="showTab('alumnos','Directorio de Alumnos')">
+                <i class="fas fa-user-graduate"></i> Alumnos
+            </button>
+            <button class="bottom-nav-btn" id="mob-rendimiento" onclick="showTab('rendimiento','Rendimiento Académico')">
+                <i class="fas fa-chart-bar"></i> Rendimiento
+            </button>
+            <button class="bottom-nav-btn" id="mob-graficas" onclick="showTab('graficas','Gráficas')">
+                <i class="fas fa-chart-line"></i> Gráficas
+            </button>
+            <button class="bottom-nav-btn" onclick="location.reload()" style="color:var(--error);">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </button>
+        </div>
+    </nav>
+</div>
+
+<script>
+    // URL base del backend (AWS Lambda)
+    const API = "https://vt3zxjtco36gwg4wcupvdvswpm0sklij.lambda-url.us-east-1.on.aws/";
+
+    // Mapa para guardar las instancias de Chart.js y poder destruirlas antes de redibujar
+    let charts = {};
+
+    // AUTENTICACIÓN
+
+    // Alterna entre el panel "Ingresar" y "Registrar"
+    function switchAuth(type) {
+        document.querySelectorAll('.form-pane').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.auth-nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('pane-' + type).classList.add('active');
+        document.getElementById(type === 'login' ? 'tab-l' : 'tab-r').classList.add('active');
+    }
+
+    // Envía las credenciales al backend; si son válidas muestra el dashboard
+    async function login() {
+        const user = document.getElementById('l-user').value;
+        const pass = document.getElementById('l-pass').value;
+        const btn  = document.getElementById('btn-login');
+        if (!user || !pass) return alert("Llena todos los campos");
+
+        btn.innerText = "..."; btn.disabled = true;
+        try {
+            const res  = await fetch(API, { method: 'POST', body: JSON.stringify({ accion: 'login', user, pass }) });
+            const data = await res.json();
+            if (res.ok && data.acceso) {
+                localStorage.setItem('admin', data.nombre); // Guarda el nombre para mostrarlo en el header
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('dashboard').style.display  = 'flex';
+                loadData(); // Carga toda la información del panel
+            } else {
+                alert("Usuario o clave incorrectos");
             }
+        } catch (e) { alert("Error de conexión"); }
+        btn.innerText = "Acceder"; btn.disabled = false;
+    }
 
-            // CONEXIÓN AWS (Lógica de error que pediste)
-            try {
-                if (API_URL === "") {
-                    if(tipo === 'register') alert("✅ Registro de Colaborador enviado (Modo Prueba)");
-                    return;
-                }
-                const response = await fetch(API_URL + '/auth', { method: 'POST', body: JSON.stringify({ user, pass, tipo }) });
-                if (response.status === 200) {
-                    localStorage.setItem('session_user', user); entrarAlPanel();
-                } else if (response.status === 401) { alert("❌ Contraseña incorrecta.");
-                } else if (response.status === 404) { alert("❓ El usuario no existe.");
-                } else { alert("⚠️ Fallo en la base de datos."); }
-            } catch (err) { console.log("Servidor desconectado"); }
+    // Registra un nuevo colaborador en el sistema
+    async function registrar() {
+        const nombre = document.getElementById('r-name').value;
+        const user   = document.getElementById('r-user').value;
+        const pass   = document.getElementById('r-pass').value;
+        const btn    = document.getElementById('btn-reg');
+        if (!nombre || !user || !pass) return alert("Llena todos los campos");
+
+        btn.innerText = "..."; btn.disabled = true;
+        try {
+            const res = await fetch(API, { method: 'POST', body: JSON.stringify({ accion: 'registrar', nombre, user, pass }) });
+            if (res.ok) { alert("¡Cuenta creada! Ya puedes iniciar sesión."); switchAuth('login'); }
+            else        { alert("Error al registrar"); }
+        } catch (e) { alert("Error de conexión"); }
+        btn.innerText = "Crear Cuenta"; btn.disabled = false;
+    }
+
+    // SIDEBAR MÓVIL
+
+    // Abre o cierra el sidebar deslizante y la capa oscura
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('on');
+    }
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('overlay').classList.remove('on');
+    }
+
+    // NAVEGACIÓN ENTRE TABS
+
+    // Oculta todos los tabs, marca el activo en sidebar y bottom-nav, actualiza el título
+    function showTab(id, title) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+
+        document.getElementById('tab-' + id).classList.add('active');
+        const sideBtn = document.getElementById('btn-' + id);
+        if (sideBtn) sideBtn.classList.add('active');
+        const mobBtn = document.getElementById('mob-' + id);
+        if (mobBtn) mobBtn.classList.add('active');
+
+        document.getElementById('page-title').innerText = title;
+        closeSidebar();
+    }
+
+    // CARGA DE DATOS DESDE EL BACKEND
+
+    // Obtiene todos los datos del panel con un GET al API y los distribuye a cada sección
+    async function loadData() {
+        const nombre  = localStorage.getItem('admin') || 'Admin';
+        const inicial = nombre.charAt(0).toUpperCase();
+
+        // Muestra el nombre del usuario en desktop y móvil
+        document.getElementById('user-tag').innerText   = nombre;
+        document.getElementById('desk-avatar').innerText = inicial;
+        document.getElementById('mob-avatar').innerText  = inicial;
+
+        try {
+            const res  = await fetch(API);
+            const data = await res.json();
+            renderStats(data.stats);
+            renderTablaAlumnos(data.usuarios);
+            renderTablaRendimiento(data.rendimiento);
+            renderGraficas(data);
+        } catch (e) {
+            console.error("Error cargando datos:", e);
         }
+    }
 
-        function entrarAlPanel() {
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('main-dashboard').style.display = 'flex';
-            initDashboard();
-        }
+    // RENDERIZADO DE CADA SECCIÓN
 
-        function showAuthTab(tab) {
-            document.querySelectorAll('.auth-form-pane').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.auth-nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('form-' + tab).classList.add('active');
-            document.getElementById('btn-tab-' + tab).classList.add('active');
-        }
+    // Actualiza los 4 números del resumen superior
+    function renderStats(s) {
+        document.getElementById('s-alumnos').innerText  = s.totalAlumnos || 0;
+        document.getElementById('s-estrellas').innerText = '⭐ ' + (s.promedioEstrellas || 0);
+        document.getElementById('s-niveles').innerText  = s.totalNivelesCompletados || 0;
+        document.getElementById('s-perfectos').innerText = s.nivelesPerfectos || 0;
+    }
 
-        function switchTab(tab) {
-            document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-btn-modern').forEach(b => b.classList.remove('active'));
-            document.getElementById('pane-' + tab).classList.add('active');
-            document.getElementById('btn-' + tab).classList.add('active');
-            const titulos = { resumen: 'Vista General', alumnos: 'Directorio', tablas: 'Puntajes', graficas: 'Rendimiento' };
-            document.getElementById('page-title').innerText = titulos[tab];
-        }
+    // Genera las filas HTML de la tabla de alumnos
+    function renderTablaAlumnos(usuarios) {
+        document.getElementById('badge-alumnos').innerText = usuarios.length;
+        document.getElementById('tabla-alumnos').innerHTML = usuarios.map(a => `
+            <tr>
+                <td><strong>${a.nombre_completo || '-'}</strong></td>
+                <td style="color:var(--grey);">@${a.nombre_usuario || '-'}</td>
+                <td>${a.edad || '-'}</td>
+                <td>
+                    <!-- Elige badge azul (masculino) o rosa (femenino) según el género -->
+                    <span class="badge badge-${(a.genero||'').toLowerCase() === 'mujer' || (a.genero||'').toLowerCase() === 'f' ? 'f' : 'm'}">
+                        ${a.genero || '-'}
+                    </span>
+                </td>
+                <td>${a.alcaldia || '-'}</td>
+                <td>${a.actividad && a.actividad.trim() !== '' ? a.actividad : 'Ninguna'}</td>
+                <td>💰 ${a.monedas || 0}</td>
+                <td style="color:var(--grey); font-size:0.82rem;">
+                    ${a.ultima_sesion ? new Date(a.ultima_sesion).toLocaleDateString('es-MX') : '-'}
+                </td>
+            </tr>
+        `).join('');
+    }
 
-        function initDashboard() {
-            document.getElementById('user-logged').innerText = localStorage.getItem('session_user');
-            
-            // DATOS QUE VENDRÁN DE LA TABLA 'ALUMNOS' DE TU BD
-            const mockAlumnos = [
-                { nombre: "Alejandro Pérez", edad: 8, genero: "M", actividad: "Fútbol", alcaldia: "Coyoacán", ultima: "2026-04-20 09:15", coins: 500, score: "95%" },
-                { nombre: "Mariana Rojas", edad: 7, genero: "F", actividad: "Canto", alcaldia: "Tlalpan", ultima: "2026-04-19 18:30", coins: 320, score: "88%" },
-                { nombre: "Luis García", edad: 9, genero: "M", actividad: "Pintura", alcaldia: "Xochimilco", ultima: "Hoy 10:00", coins: 150, score: "70%" }
-            ];
+    // Genera las filas de la tabla de rendimiento con color según promedio de estrellas
+    function renderTablaRendimiento(rendimiento) {
+        document.getElementById('badge-rend').innerText = rendimiento.length;
+        document.getElementById('tabla-rendimiento').innerHTML = rendimiento.map(r => {
+            const estrellas = parseFloat(r.promedio_estrellas) || 0;
+            // high ≥ 2.5 | mid ≥ 1.5 | low < 1.5
+            const cls   = estrellas >= 2.5 ? 'high' : estrellas >= 1.5 ? 'mid' : 'low';
+            const stars = '⭐'.repeat(Math.round(estrellas));
+            return `
+            <tr>
+                <td><strong>${r.nombre_completo || '-'}</strong></td>
+                <td style="color:var(--grey);">@${r.nombre_usuario || '-'}</td>
+                <td>${r.niveles_suma || 0}/10</td>
+                <td>${r.niveles_resta || 0}/10</td>
+                <td>${r.niveles_multi || 0}/10</td>
+                <td>${r.niveles_divi || 0}/10</td>
+                <td><strong>${r.total_niveles || 0}</strong></td>
+                <td><span class="badge badge-pct-${cls}">${estrellas} ${stars}</span></td>
+                <td>${r.niveles_perfectos || 0}</td>
+            </tr>`;
+        }).join('');
+    }
 
-            const tbody = document.getElementById('table-alumnos-body');
-            tbody.innerHTML = mockAlumnos.map(a => `
-                <tr><td><strong>${a.nombre}</strong></td><td>${a.edad}</td><td>${a.genero}</td><td>${a.actividad}</td><td>${a.alcaldia}</td><td>${a.ultima}</td></tr>
-            `).join('');
+    // Destruye una gráfica existente antes de crearla de nuevo (evita duplicados)
+    function destroyChart(id) {
+        if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+    }
 
-            const tbodyScores = document.getElementById('table-scores-body');
-            tbodyScores.innerHTML = mockAlumnos.map(a => `
-                <tr><td>${a.nombre}</td><td>Nivel Aritmética</td><td>${a.score}</td><td>💰 ${a.coins}</td></tr>
-            `).join('');
+    // GRÁFICAS (Chart.js)
+    // Cada bloque destruye la gráfica anterior y crea una nueva con los datos frescos
 
-            document.getElementById('stat-count').innerText = mockAlumnos.length;
-            renderGrafica();
-        }
+    function renderGraficas(data) {
+        const { usuarios, rendimiento, progreso, top5Estrellas } = data;
 
-        function renderGrafica() {
-            const ctx = document.getElementById('chartProgreso').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
-                    datasets: [{ label: 'Aciertos %', data: [70, 85, 78, 92], borderColor: '#4361ee', tension: 0.4 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
-    </script>
+        // Barras: Top 5 alumnos con más estrellas (en el resumen)
+        destroyChart('estrellas');
+        charts['estrellas'] = new Chart(document.getElementById('chart-estrellas').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: (top5Estrellas||[]).map(u => u.nombre_usuario || 'Anon'),
+                datasets: [{ label: 'Estrellas', data: (top5Estrellas||[]).map(u => parseFloat(u.avg_estrellas)||0), backgroundColor: '#ffb547', borderRadius: 8 }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { max: 3, beginAtZero: true } } }
+        });
+
+        // Donut: niveles completados por operación matemática (en el resumen)
+        const temasLabels = { suma: '➕ Suma', resta: '➖ Resta', multiplicacion: '✖️ Multiplicación', division: '➗ División' };
+        destroyChart('niveles');
+        charts['niveles'] = new Chart(document.getElementById('chart-niveles').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: (progreso||[]).map(p => temasLabels[p.tipo] || p.tipo),
+                datasets: [{ data: (progreso||[]).map(p => p.completados || 0), backgroundColor: ['#4361ee','#f72585','#05cd99','#ffb547'], borderWidth: 0 }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+        });
+
+        // Pie: distribución de alumnos por género
+        const hombres = usuarios.filter(u => ['hombre','m','masculino'].includes((u.genero||'').toLowerCase())).length;
+        const mujeres = usuarios.filter(u => ['mujer','f','femenino'].includes((u.genero||'').toLowerCase())).length;
+        const otros   = usuarios.length - hombres - mujeres;
+        const genLabels = ['Hombres', 'Mujeres'];
+        const genData   = [hombres, mujeres];
+        if (otros > 0) { genLabels.push('Otro'); genData.push(otros); }
+        destroyChart('genero');
+        charts['genero'] = new Chart(document.getElementById('chart-genero').getContext('2d'), {
+            type: 'pie',
+            data: {
+                labels: genLabels,
+                datasets: [{ data: genData, backgroundColor: ['#4361ee','#f72585','#05cd99'], borderWidth: 0 }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        });
+
+        // Barras: monedas acumuladas por alumno
+        destroyChart('monedas2');
+        charts['monedas2'] = new Chart(document.getElementById('chart-monedas2').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: usuarios.map(u => u.nombre_usuario || 'Anon'),
+                datasets: [{ label: 'Monedas', data: usuarios.map(u => u.monedas || 0), backgroundColor: '#7209b7', borderRadius: 6 }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { font: { size: 10 } } } } }
+        });
+
+        // Barras: promedio de estrellas de los 10 mejores alumnos
+        const top10 = [...rendimiento].sort((a,b) => parseFloat(b.promedio_estrellas||0) - parseFloat(a.promedio_estrellas||0)).slice(0,10);
+        destroyChart('estrellas2');
+        charts['estrellas2'] = new Chart(document.getElementById('chart-estrellas2').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: top10.map(r => r.nombre_usuario || 'Anon'),
+                datasets: [{ label: '⭐ Promedio Estrellas', data: top10.map(r => parseFloat(r.promedio_estrellas)||0), backgroundColor: '#05cd99', borderRadius: 8 }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { max: 3, beginAtZero: true } }
+            }
+        });
+
+        // Barras agrupadas: niveles completados y promedio de estrellas por tema
+        destroyChart('temas');
+        charts['temas'] = new Chart(document.getElementById('chart-temas').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: (progreso||[]).map(p => temasLabels[p.tipo] || p.tipo),
+                datasets: [
+                    { label: 'Niveles Completados', data: (progreso||[]).map(p => p.completados||0), backgroundColor: '#4361ee', borderRadius: 6 },
+                    { label: 'Promedio Estrellas',  data: (progreso||[]).map(p => parseFloat(p.avg_estrellas)||0), backgroundColor: '#ffb547', borderRadius: 6 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }
+</script>
 </body>
 </html>
